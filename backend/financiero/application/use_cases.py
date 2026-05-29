@@ -12,6 +12,7 @@ from collections import Counter
 from typing import Any
 
 from engine.loader import cargar_davivienda, cargar_bancolombia, cargar_bogota, cargar_sap
+from financiero.infrastructure.models import AuditConciliacion
 from engine.matcher import ejecutar_matching
 from engine.diagnostics import diagnosticar
 
@@ -112,10 +113,16 @@ def _diagnostico_dict(d) -> dict:
     }
 
 
-def ejecutar_conciliacion(banco: str, extracto_file, sap_file) -> dict[str, Any]:
+def ejecutar_conciliacion(
+    banco: str,
+    extracto_file,
+    sap_file,
+    audit_context: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     """
     banco: 'DAVIVIENDA' | 'BANCOLOMBIA' | 'BOGOTA'
-    extracto_file, sap_file: Django InMemoryUploadedFile (o cualquier objeto con .chunks())
+    extracto_file, sap_file: Django InMemoryUploadedFile
+    audit_context: {usuario_id, usuario_nombre, usuario_tipo, area_id, area_nombre}
     """
     banco = banco.upper()
     loader = _BANCO_LOADERS.get(banco)
@@ -144,6 +151,21 @@ def ejecutar_conciliacion(banco: str, extracto_file, sap_file) -> dict[str, Any]
     total         = len(resultados)
     suma_banco    = _f(sum(_f(r.banco_monto) or 0 for r in resultados))
     suma_sap      = _f(sum(_f(r.sap_monto)  or 0 for r in resultados if r.sap_monto is not None))
+
+    if audit_context:
+        AuditConciliacion.objects.create(
+            usuario_id=audit_context.get('usuario_id', 0),
+            usuario_nombre=audit_context.get('usuario_nombre', ''),
+            usuario_tipo=audit_context.get('usuario_tipo', 3),
+            area_id=audit_context.get('area_id'),
+            area_nombre=audit_context.get('area_nombre', ''),
+            banco=banco,
+            total_banco=total,
+            total_sap=len(sap_df),
+            tasa_conciliacion=round(
+                (total - conteo.get('ABIERTO', 0)) / total, 4
+            ) if total else 0,
+        )
 
     return {
         'banco': banco,
