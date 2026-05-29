@@ -97,7 +97,7 @@ export function exportarInformeExcel(r: ApiResultExport) {
   const ws4 = XLSX.utils.aoa_to_sheet([
     ['Fecha banco', 'Monto banco', 'Descripción banco', 'Ref banco',
      'Fecha SAP', 'Monto SAP', 'Descripción SAP', 'Doc SAP',
-     'Δ Monto (COP)', 'Δ Días', 'Acción sugerida'],
+     'Dif. Monto (COP)', 'Dif. Días', 'Acción sugerida'],
     ...pend.map(x => [
       x.banco_fecha ?? '—',
       n(x.banco_monto),
@@ -123,7 +123,7 @@ export function exportarInformeExcel(r: ApiResultExport) {
       // Banco (izquierda)
       'Fecha banco', 'Monto banco (COP)', 'Tipo', 'Descripción banco', 'NIT/Ref banco',
       // Estado (centro)
-      'Estado', 'Δ Monto (COP)', 'Δ Días',
+      'Estado', 'Dif. Monto (COP)', 'Dif. Días',
       // SAP (derecha)
       'Fecha SAP', 'Monto SAP (COP)', 'Descripción SAP / Razón social', 'Nº Doc SAP', 'NIT/Ref SAP',
     ],
@@ -147,4 +147,63 @@ export function exportarInformeExcel(r: ApiResultExport) {
   XLSX.utils.book_append_sheet(wb, wsC, 'Comparativa completa');
 
   XLSX.writeFile(wb, `conciliacion_${r.banco}_${fecha.replace(/\//g, '-')}.xlsx`);
+}
+
+export function exportarInformeExcelFiltrado(
+  rows: ResultadoExport[],
+  filtroNombre: string,
+  banco: string,
+) {
+  const wb    = XLSX.utils.book_new();
+  const fecha = new Date().toLocaleDateString('es-CO');
+
+  const sumaBanco  = rows.reduce((s, r) => s + n(r.banco_monto), 0);
+  const sumaSap    = rows.reduce((s, r) => s + n(r.sap_monto),   0);
+  const diferencia = Math.abs(sumaBanco - sumaSap);
+
+  // ── Hoja 1: Resumen del filtro ────────────────────────────────────────────
+  const ws1 = XLSX.utils.aoa_to_sheet([
+    ['INFORME DE CONCILIACIÓN BANCARIA — FILTRADO'],
+    ['Banco',             banco],
+    ['Filtro aplicado',   filtroNombre],
+    ['Fecha exportación', fecha],
+    [],
+    ['Registros en esta vista', rows.length],
+    [],
+    ['TOTALES (COP)', ''],
+    ['Suma banco',  sumaBanco],
+    ['Suma SAP',    sumaSap],
+    ['Diferencia',  diferencia],
+  ]);
+  autoWidth(ws1, [44, 22]);
+  XLSX.utils.book_append_sheet(wb, ws1, 'Resumen');
+
+  // ── Hoja 2: Comparativa filtrada ──────────────────────────────────────────
+  const wsC = XLSX.utils.aoa_to_sheet([
+    [
+      'Fecha banco', 'Monto banco (COP)', 'Tipo', 'Descripción banco', 'NIT/Ref banco',
+      'Estado', 'Dif. Monto (COP)', 'Dif. Días',
+      'Fecha SAP', 'Monto SAP (COP)', 'Descripción SAP / Razón social', 'Nº Doc SAP', 'NIT/Ref SAP',
+    ],
+    ...rows.map(x => [
+      x.banco_fecha  ?? '—',
+      n(x.banco_monto),
+      x.banco_tipo,
+      x.banco_desc,
+      x.banco_ref    ?? '—',
+      x.nivel_negocio,
+      x.delta_monto  != null ? n(x.delta_monto) : '—',
+      x.delta_dias   != null ? x.delta_dias      : '—',
+      x.sap_fecha    ?? '—',
+      x.sap_monto    != null ? n(x.sap_monto)    : '—',
+      x.sap_desc     ?? '—',
+      x.sap_num_doc  ?? '—',
+      x.sap_ref      ?? '—',
+    ]),
+  ]);
+  autoWidth(wsC, [12, 16, 6, 38, 16, 14, 14, 8, 12, 16, 38, 14, 16]);
+  XLSX.utils.book_append_sheet(wb, wsC, `${filtroNombre} (${rows.length})`);
+
+  const nombre = filtroNombre.toLowerCase().replace(/\s+/g, '-');
+  XLSX.writeFile(wb, `conciliacion_${banco}_${nombre}_${fecha.replace(/\//g, '-')}.xlsx`);
 }
