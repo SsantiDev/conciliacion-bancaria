@@ -7,61 +7,61 @@
 
 :root {
   /* ── Brand Colors ────────────────────────── */
-  --brand-orange: #d4652c;
-  --brand-gold: #eebf31;
-  --brand-sky: #67b6d9;
-  --brand-navy: #1a2332;
+  --brand-orange: #F5A623;
+  --brand-gold: #F5C518;
+  --brand-sky: #6B7FD4;
+  --brand-navy: #0F1122;
 
-  /* ── Corporate Palette (Light Theme) ─────── */
-  --color-bg-primary: #f8fafc;
-  --color-bg-secondary: #f1f5f9;
-  --color-bg-elevated: #ffffff;
-  --color-bg-surface: #ffffff;
-  --color-bg-muted: #e2e8f0;
+  /* ── Dark Theme Backgrounds ───────────────── */
+  --color-bg-primary: #0F1122;
+  --color-bg-secondary: #131627;
+  --color-bg-elevated: #1A1D2E;
+  --color-bg-surface: #1A1D2E;
+  --color-bg-muted: #252838;
 
-  /* ── Accent (Indigo → Purple gradient) ──── */
-  --color-accent-500: #4f46e5;
-  --color-accent-400: #6366f1;
-  --color-accent-600: #4338ca;
-  --color-accent-glow: rgba(79, 70, 229, 0.2);
-  --color-purple-500: #9333ea;
-  --color-purple-400: #a855f7;
+  /* ── Accent (Gold / Amber) ────────────────── */
+  --color-accent-500: #F5C518;
+  --color-accent-400: #F5A623;
+  --color-accent-600: #D4A800;
+  --color-accent-glow: rgba(245, 197, 24, 0.2);
+  --color-purple-500: #6B7FD4;
+  --color-purple-400: #8B96E0;
 
-  /* ── Neutrals (Slate Scale) ─────────────── */
-  --slate-50: #f8fafc;
-  --slate-100: #f1f5f9;
-  --slate-200: #e2e8f0;
-  --slate-300: #cbd5e1;
-  --slate-400: #94a3b8;
-  --slate-500: #64748b;
-  --slate-600: #475569;
-  --slate-700: #334155;
-  --slate-800: #1e293b;
-  --slate-900: #0f172a;
-  --slate-950: #020617;
+  /* ── Neutrals (Dark Scale) ──────────────── */
+  --slate-50: #E8EAFF;
+  --slate-100: #C8CCEE;
+  --slate-200: #9DA4CC;
+  --slate-300: #7A82B8;
+  --slate-400: #6B7FD4;
+  --slate-500: #6E7191;
+  --slate-600: #4A4D6A;
+  --slate-700: #3D4170;
+  --slate-800: #2E3150;
+  --slate-900: #1A1D2E;
+  --slate-950: #0F1122;
 
   /* ── Semantic Colors ────────────────────── */
-  --color-success: #16a34a;
-  --color-success-bg: rgba(22, 163, 74, 0.1);
-  --color-warning: #d97706;
-  --color-warning-bg: rgba(217, 119, 6, 0.1);
-  --color-error: #dc2626;
-  --color-error-light: #ef4444;
-  --color-error-bg: rgba(220, 38, 38, 0.08);
-  --color-info: #2563eb;
-  --color-info-bg: rgba(37, 99, 235, 0.1);
+  --color-success: #22c55e;
+  --color-success-bg: rgba(34, 197, 94, 0.12);
+  --color-warning: #F5A623;
+  --color-warning-bg: rgba(245, 166, 35, 0.12);
+  --color-error: #f87171;
+  --color-error-light: #fc8181;
+  --color-error-bg: rgba(248, 113, 113, 0.1);
+  --color-info: #6B7FD4;
+  --color-info-bg: rgba(107, 127, 212, 0.12);
 
   /* ── Text Colors ────────────────────────── */
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #64748b;
-  --text-inverse: #ffffff;
+  --text-primary: #E8EAFF;
+  --text-secondary: #6B7FD4;
+  --text-muted: #6E7191;
+  --text-inverse: #0F1122;
 
   /* ── Border Colors ──────────────────────── */
-  --border-default: rgba(0, 0, 0, 0.1);
-  --border-subtle: rgba(0, 0, 0, 0.05);
-  --border-strong: rgba(0, 0, 0, 0.15);
-  --border-accent: rgba(79, 70, 229, 0.3);
+  --border-default: rgba(46, 49, 80, 0.9);
+  --border-subtle: rgba(46, 49, 80, 0.5);
+  --border-strong: #3D4170;
+  --border-accent: rgba(245, 166, 35, 0.4);
 
   /* ── Typography Scale (Fluid) ───────────── */
   --text-2xs: clamp(0.625rem, 0.6rem + 0.15vw, 0.6875rem);
@@ -181,6 +181,7 @@ body {
   text-rendering: optimizeLegibility;
   overflow-x: hidden;
   line-height: 1.6;
+  color-scheme: dark;
 }
 
 h1,
@@ -221,8 +222,8 @@ select {
 }
 
 ::selection {
-  background: rgba(99, 102, 241, 0.3);
-  color: #fff;
+  background: rgba(245, 197, 24, 0.3);
+  color: #0F1122;
 }
 
 /* Scrollbar Styling */
@@ -925,26 +926,22 @@ select {
 
 .bg-corporate {
   background:
-    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(168, 85, 247, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(245, 197, 24, 0.05) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 100%, rgba(107, 127, 212, 0.04) 0%, transparent 50%),
     var(--color-bg-primary);
 }
 
 .glass-corporate {
-  background: linear-gradient(165deg,
-      rgba(255, 255, 255, 0.85) 0%,
-      rgba(255, 255, 255, 0.95) 100%);
+  background: var(--color-bg-elevated);
   border: 1px solid var(--border-default);
   box-shadow:
-    0 16px 32px -10px rgba(0, 0, 0, 0.1),
-    0 0 0 1px rgba(0, 0, 0, 0.02),
-    inset 0 1px 0 rgba(255, 255, 255, 1);
-  backdrop-filter: blur(24px) saturate(1.2);
-  -webkit-backdrop-filter: blur(24px) saturate(1.2);
+    0 16px 40px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(46, 49, 80, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .glass-light {
-  background: rgba(255, 255, 255, 0.6);
+  background: rgba(26, 29, 46, 0.8);
   border: 1px solid var(--border-subtle);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -1143,51 +1140,34 @@ select {
   justify-content: center;
   gap: var(--space-2);
   padding: var(--space-4) var(--space-6);
-  background: linear-gradient(135deg, var(--color-accent-500) 0%, var(--color-purple-500) 100%);
-  color: white;
-  font-weight: 600;
+  background: var(--color-accent-500);
+  color: var(--text-inverse);
+  font-weight: 700;
   font-size: var(--text-sm);
   border-radius: var(--radius-xl);
   border: none;
-  position: relative;
-  overflow: hidden;
+  letter-spacing: 0.01em;
   transition:
     transform var(--duration-normal) var(--ease-default),
     box-shadow var(--duration-normal) var(--ease-default),
-    opacity var(--duration-normal) var(--ease-default);
-  box-shadow:
-    0 4px 16px rgba(99, 102, 241, 0.25),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
-}
-
-.btn-primary::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
-  opacity: 0;
-  transition: opacity var(--duration-normal) var(--ease-default);
+    background-color var(--duration-normal) var(--ease-default);
+  box-shadow: 0 4px 20px rgba(245, 197, 24, 0.35);
 }
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow:
-    0 8px 24px rgba(99, 102, 241, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.15);
-}
-
-.btn-primary:hover:not(:disabled)::before {
-  opacity: 1;
+  background: #FFD200;
+  box-shadow: 0 8px 28px rgba(245, 197, 24, 0.5);
 }
 
 .btn-primary:active:not(:disabled) {
   transform: translateY(0) scale(0.985);
+  box-shadow: 0 2px 10px rgba(245, 197, 24, 0.3);
 }
 
 .btn-primary:disabled {
-  opacity: 0.35;
+  opacity: 0.4;
   cursor: not-allowed;
-  filter: grayscale(0.3);
 }
 
 .btn-secondary {
@@ -1196,18 +1176,18 @@ select {
   justify-content: center;
   gap: var(--space-2);
   padding: var(--space-3) var(--space-5);
-  background: var(--color-bg-elevated);
+  background: var(--color-bg-muted);
   color: var(--text-primary);
-  font-weight: 500;
+  font-weight: 600;
   font-size: var(--text-sm);
   border-radius: var(--radius-lg);
-  border: 1px solid var(--border-default);
+  border: 1px solid var(--border-strong);
   transition: all var(--duration-normal) var(--ease-default);
 }
 
 .btn-secondary:hover {
-  background: var(--slate-100);
-  border-color: var(--border-strong);
+  background: var(--slate-800);
+  border-color: var(--slate-600);
 }
 
 .btn-ghost {
@@ -1217,7 +1197,7 @@ select {
   gap: var(--space-2);
   padding: var(--space-2) var(--space-3);
   background: transparent;
-  color: var(--text-secondary);
+  color: var(--text-muted);
   font-weight: 500;
   font-size: var(--text-sm);
   border-radius: var(--radius-lg);
@@ -1226,7 +1206,7 @@ select {
 }
 
 .btn-ghost:hover {
-  background: var(--slate-100);
+  background: var(--color-bg-muted);
   color: var(--text-primary);
 }
 
@@ -1580,9 +1560,11 @@ select {
 
 .animate-spin {
   animation: spin 1s linear infinite;
-  transform-box: fill-box;      /* hace que transform-origin sea relativo al bbox del SVG */
+  transform-box: fill-box;
+  /* hace que transform-origin sea relativo al bbox del SVG */
   transform-origin: center;
-  display: inline-block;        /* necesario para que funcione en elementos inline */
+  display: inline-block;
+  /* necesario para que funcione en elementos inline */
 }
 
 .animate-pulse {
@@ -1803,4 +1785,192 @@ select {
   color: var(--color-error);
   background-color: var(--color-error-bg);
   border-color: rgba(220, 38, 38, 0.2);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONCILIATION DASHBOARD CUSTOM CLASSES
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Hover Highlight for matched pairs in comparative table */
+.comparativa-row {
+  transition: background-color var(--duration-fast) var(--ease-default);
+}
+
+.comparativa-row:hover {
+  background-color: rgba(255, 255, 255, 0.035) !important;
+}
+
+/* Custom scrollbar for horizontal table scroll */
+.scrollbar-custom {
+  scrollbar-width: thin;
+  scrollbar-color: var(--slate-700) transparent;
+}
+
+.scrollbar-custom::-webkit-scrollbar {
+  height: 8px;
+  width: 8px;
+}
+
+.scrollbar-custom::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb {
+  background: var(--slate-700);
+  border-radius: var(--radius-full);
+}
+
+.scrollbar-custom::-webkit-scrollbar-thumb:hover {
+  background: var(--slate-500);
+}
+
+/* Styling for pagination buttons to avoid direct DOM style mutation memory leak */
+.page-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  background: var(--color-bg-elevated);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--duration-fast) var(--ease-default);
+  box-sizing: border-box;
+}
+
+.page-btn:hover {
+  border-color: var(--color-accent-500) !important;
+  color: var(--text-primary);
+  background: var(--color-bg-muted);
+}
+
+.page-btn.active {
+  background: var(--color-accent-500) !important;
+  color: var(--text-inverse) !important;
+  border-color: var(--color-accent-500) !important;
+  box-shadow: 0 2px 8px rgba(245, 197, 24, 0.2);
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   CONCILIA — RESPONSIVE LAYOUT
+   ═══════════════════════════════════════════════════════════════ */
+
+.concilia-layout {
+  display: flex;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--color-bg-primary);
+}
+
+.concilia-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.concilia-main {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.concilia-content {
+  width: 100%;
+  padding: var(--space-4);
+  box-sizing: border-box;
+}
+
+.concilia-banks-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-4);
+  margin-bottom: var(--space-8);
+}
+
+/* ── Laptop / pantallas medianas (≤ 1280px) ── */
+@media (max-width: 1280px) {
+  .concilia-main {
+    padding-bottom: var(--space-10);
+  }
+}
+
+/* ── Tablet (768px – 1023px) ── */
+@media (max-width: 1023px) {
+  .concilia-sidebar {
+    width: 210px;
+  }
+
+  .concilia-content {
+    padding: var(--space-4);
+  }
+
+  .concilia-banks-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Mobile (< 640px) ── */
+@media (max-width: 639px) {
+  .concilia-sidebar {
+    display: none;
+  }
+
+  .concilia-content {
+    padding: var(--space-3);
+  }
+
+  .concilia-banks-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Responsive grid helpers ── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.diag-cat-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Tab pills — scroll horizontal sin barra visible en mobile */
+.concilia-tabs-bar {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.concilia-tabs-bar::-webkit-scrollbar { display: none; }
+
+/* Comparativa: tabla en desktop, cards en mobile */
+.comparativa-table-desktop { display: block; }
+.comparativa-mobile-cards  { display: none; }
+
+@media (max-width: 639px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .diag-cat-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .comparativa-table-desktop { display: none; }
+  .comparativa-mobile-cards  { display: block; }
 }
