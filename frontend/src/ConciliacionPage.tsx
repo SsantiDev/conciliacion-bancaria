@@ -1,23 +1,25 @@
 import React, { useState, useRef } from 'react';
 import { toast } from 'sonner';
-import { Building2, FileSpreadsheet, ArrowRight, X, Check, BarChart2, RotateCcw, AlertTriangle, Shield } from 'lucide-react';
+import { Building2, FileSpreadsheet, ArrowRight, X, Check, BarChart2, RotateCcw, AlertTriangle, Shield, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { exportarInformeExcel } from './exportExcel';
 import DiagnosticosPanel from './DiagnosticosPanel';
 import type { DiagItem } from './DiagnosticosPanel';
 import TablaComparativa from './TablaComparativa';
 import type { Resultado, Totales } from './TablaComparativa';
-import BankGuidePanel from './BankGuidePanel';
 import { BANK_SCHEMAS } from './bankConfig';
 import { getCurrentUser } from './userContext';
 import AuditoriaPanel from './AuditoriaPanel';
+import logoBancolombia from './assets/LogoBancolombia.png';
+import logoBogota from './assets/banco-de-bogota.png';
+import logoDavivienda from './assets/logo-davivienda.png';
 
 const API_BASE = '';
 
 // 🇨🇴 amarillo · azul · rojo
 const BANKS = [
-  { id: 'bancolombia', name: 'Bancolombia',     accent: '#FFD100', text: '#FFD100' },
-  { id: 'bogota',      name: 'Banco de Bogotá', accent: '#1565C0', text: '#90CAF9' },
-  { id: 'davivienda',  name: 'Davivienda',      accent: '#C8102E', text: '#FF8A80' },
+  { id: 'bancolombia', name: 'Bancolombia',     accent: '#FFD100', text: '#FFD100', logo: logoBancolombia, scale: 1.6 },
+  { id: 'bogota',      name: 'Banco de Bogotá', accent: '#1565C0', text: '#90CAF9', logo: logoBogota,      scale: 1.6 },
+  { id: 'davivienda',  name: 'Davivienda',      accent: '#C8102E', text: '#FF8A80', logo: logoDavivienda,  scale: 1.0 },
 ];
 
 const NIVEL_COLOR: Record<string, string> = {
@@ -43,9 +45,30 @@ interface ApiResult { banco: string; resumen: Resumen; totales: Totales; resulta
 
 // ── Sidebar Steps ─────────────────────────────────────────────────────────────
 
-const SidebarSteps: React.FC<{ stage: Stage }> = ({ stage }) => {
+const SidebarSteps: React.FC<{ stage: Stage; collapsed?: boolean }> = ({ stage, collapsed }) => {
   const stages: Stage[] = ['select', 'upload', 'processing', 'done'];
   const idx = stages.indexOf(stage);
+
+  if (collapsed) {
+    return (
+      <nav style={{ flex: 1, padding: 'var(--space-6) 0', display: 'flex', flexDirection: 'column', alignItems: 'center', overflowY: 'auto' }}>
+        {STEP_INFO.map(({ key }, i) => {
+          const done = i < idx, active = i === idx;
+          return (
+            <div key={key} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <div style={{ width: 32, height: 32, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 800, fontSize: 12, background: done ? 'var(--color-success)' : active ? 'var(--color-accent-500)' : 'var(--color-bg-muted)', color: done ? '#fff' : active ? 'var(--text-inverse)' : 'var(--text-muted)', boxShadow: active ? '0 0 14px rgba(245,197,24,0.4)' : 'none', transition: 'all var(--duration-slow)' }}>
+                {done ? <Check size={14} strokeWidth={3} /> : i + 1}
+              </div>
+              {i < STEP_INFO.length - 1 && (
+                <div style={{ width: 2, height: 20, margin: '4px 0', background: done ? 'var(--color-success)' : 'var(--color-bg-muted)', transition: 'background var(--duration-slow)' }} />
+              )}
+            </div>
+          );
+        })}
+      </nav>
+    );
+  }
+
   return (
     <nav style={{ flex: 1, padding: 'var(--space-6) var(--space-5)', overflowY: 'auto' }}>
       {STEP_INFO.map(({ key, label, desc }, i) => {
@@ -72,26 +95,37 @@ const SidebarSteps: React.FC<{ stage: Stage }> = ({ stage }) => {
 // ── BankCard ──────────────────────────────────────────────────────────────────
 
 const BankCard: React.FC<{ bank: typeof BANKS[0]; selected: boolean; onClick: () => void }> = ({ bank, selected, onClick }) => (
-  <button onClick={onClick} style={{ padding: 'var(--space-5)', borderRadius: 'var(--radius-xl)', textAlign: 'left', cursor: 'pointer', width: '100%', border: `1.5px solid ${selected ? bank.accent : 'var(--border-default)'}`, background: selected ? `${bank.accent}14` : 'var(--color-bg-muted)', boxShadow: selected ? `0 0 0 3px ${bank.accent}28, 0 4px 20px ${bank.accent}22` : 'none', transition: 'all var(--duration-normal) var(--ease-default)', position: 'relative' }}>
+  <button onClick={onClick} style={{ padding: 'var(--space-5)', borderRadius: 'var(--radius-xl)', textAlign: 'center', cursor: 'pointer', width: '100%', border: `1.5px solid ${selected ? bank.accent : 'var(--border-default)'}`, background: selected ? `${bank.accent}14` : 'var(--color-bg-muted)', boxShadow: selected ? `0 0 0 3px ${bank.accent}28, 0 4px 20px ${bank.accent}22` : 'none', transition: 'all var(--duration-normal) var(--ease-default)', position: 'relative' }}>
     {selected && <div style={{ position: 'absolute', top: 10, right: 10, width: 22, height: 22, borderRadius: '50%', background: bank.accent, display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Check size={13} color="#000" strokeWidth={3} /></div>}
-    <div style={{ width: 44, height: 44, borderRadius: 'var(--radius-lg)', background: `${bank.accent}18`, border: `1px solid ${bank.accent}35`, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-3)' }}>
-      <Building2 size={20} style={{ color: bank.text }} />
+    <div style={{ width: '100%', height: 54, display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 'var(--space-4)', overflow: 'hidden' }}>
+      <img src={bank.logo} alt={bank.name} style={{ maxHeight: '100%', maxWidth: '100%', objectFit: 'contain', transform: `scale(${bank.scale})`, transition: 'transform var(--duration-normal)' }} />
     </div>
-    <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--text-primary)', display: 'block' }}>{bank.name}</span>
-    <span style={{ fontSize: 'var(--text-xs)', color: bank.text, fontWeight: 600, marginTop: 2, display: 'block' }}>●</span>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 'var(--space-2)' }}>
+      <span style={{ width: 8, height: 8, borderRadius: '50%', background: bank.accent, display: 'block', flexShrink: 0 }} />
+      <span style={{ fontSize: 'var(--text-sm)', fontWeight: 700, color: 'var(--text-primary)' }}>{bank.name}</span>
+    </div>
   </button>
 );
 
 // ── DropZone ──────────────────────────────────────────────────────────────────
 
-const DropZone: React.FC<{
-  label: string; hint: string; file: FileInfo | null;
+interface DropZoneProps {
+  label: string;
+  hint: string;
+  file: FileInfo | null;
   inputRef: React.RefObject<HTMLInputElement>;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onClear: () => void;
   onFileDrop: (file: File) => void;
-}> = ({ label, hint, file, inputRef, onChange, onClear, onFileDrop }) => {
+  guide?: any;
+  accent?: string;
+}
+
+const DropZone: React.FC<DropZoneProps> = ({
+  label, hint, file, inputRef, onChange, onClear, onFileDrop, guide, accent
+}) => {
   const [dragging, setDragging] = useState(false);
+  const [showGuide, setShowGuide] = useState(false);
   const dragCount = useRef(0);
 
   const onDragEnter = () => { dragCount.current++; setDragging(true); };
@@ -105,7 +139,7 @@ const DropZone: React.FC<{
   };
 
   return (
-    <div>
+    <div style={{ position: 'relative' }}>
       <label style={{ display: 'block', fontSize: 'var(--text-xs)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.07em', color: 'var(--text-muted)', marginBottom: 'var(--space-2)' }}>{label}</label>
       <input ref={inputRef} type="file" accept=".xlsx,.xls,.csv" style={{ display: 'none' }} onChange={onChange} />
       {file ? (
@@ -118,9 +152,47 @@ const DropZone: React.FC<{
         <button
           onClick={() => inputRef.current?.click()}
           onDragEnter={onDragEnter} onDragLeave={onDragLeave} onDragOver={onDragOver} onDrop={onDrop}
-          style={{ width: '100%', padding: 'var(--space-8)', background: dragging ? 'rgba(245,197,24,0.06)' : 'var(--color-bg-muted)', border: `1.5px dashed ${dragging ? 'var(--color-accent-500)' : 'var(--border-strong)'}`, borderRadius: 'var(--radius-xl)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)', transition: 'all var(--duration-normal)' }}
+          style={{ width: '100%', padding: 'var(--space-8)', background: dragging ? 'rgba(245,197,24,0.06)' : 'var(--color-bg-muted)', border: `1.5px dashed ${dragging ? 'var(--color-accent-500)' : 'var(--border-strong)'}`, borderRadius: 'var(--radius-xl)', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 'var(--space-2)', transition: 'all var(--duration-normal)', position: 'relative' }}
           onMouseEnter={e => { if (!dragging) { e.currentTarget.style.borderColor = 'var(--color-accent-500)'; e.currentTarget.style.background = 'rgba(245,197,24,0.04)'; }}}
           onMouseLeave={e => { if (!dragging) { e.currentTarget.style.borderColor = 'var(--border-strong)'; e.currentTarget.style.background = 'var(--color-bg-muted)'; }}}>
+          
+          {guide && (
+            <div
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                position: 'absolute',
+                top: 12,
+                right: 12,
+                width: 24,
+                height: 24,
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.05)',
+                border: '1px solid var(--border-subtle)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'var(--text-muted)',
+                transition: 'all var(--duration-fast)',
+                cursor: 'help',
+                zIndex: 10
+              }}
+              onMouseEnter={(e) => {
+                setShowGuide(true);
+                e.currentTarget.style.color = accent || 'var(--color-accent-500)';
+                e.currentTarget.style.borderColor = accent || 'var(--color-accent-500)';
+                e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+              }}
+              onMouseLeave={(e) => {
+                setShowGuide(false);
+                e.currentTarget.style.color = 'var(--text-muted)';
+                e.currentTarget.style.borderColor = 'var(--border-subtle)';
+                e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+              }}
+            >
+              <AlertCircle size={14} />
+            </div>
+          )}
+
           <div style={{ width: 42, height: 42, borderRadius: 'var(--radius-lg)', background: dragging ? 'rgba(245,197,24,0.12)' : 'var(--color-bg-elevated)', border: `1px solid ${dragging ? 'rgba(245,197,24,0.3)' : 'var(--border-default)'}`, display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all var(--duration-normal)' }}>
             <FileSpreadsheet size={20} style={{ color: dragging ? 'var(--color-accent-500)' : 'var(--text-muted)' }} />
           </div>
@@ -128,6 +200,58 @@ const DropZone: React.FC<{
             {dragging ? 'Suelta para cargar' : 'Arrastra o selecciona archivo'}
           </span>
           <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{hint}</span>
+
+          {showGuide && guide && (
+            <div style={{
+              position: 'absolute',
+              top: 42,
+              right: -16,
+              width: 360,
+              background: 'rgba(26, 29, 46, 0.96)',
+              border: '1.5px solid var(--border-strong)',
+              borderRadius: 'var(--radius-xl)',
+              padding: 'var(--space-4) var(--space-5)',
+              boxShadow: 'var(--shadow-xl)',
+              zIndex: 50,
+              textAlign: 'left',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              animation: 'fadeInUp 0.2s var(--ease-out) forwards',
+              pointerEvents: 'none',
+            }}>
+              <h5 style={{ margin: 0, fontSize: 13, fontWeight: 800, color: 'var(--text-primary)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ width: 6, height: 6, borderRadius: '50%', background: accent || 'var(--color-accent-500)' }} />
+                Estructura Esperada
+              </h5>
+              <p style={{ fontSize: 12, color: 'var(--text-muted)', margin: '0 0 12px 0', lineHeight: 1.5 }}>
+                {guide.description}
+              </p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 4, borderBottom: '1px solid var(--border-default)', fontSize: 10, fontWeight: 800, color: 'var(--text-muted)', textTransform: 'uppercase' }}>
+                  <span>Columna</span>
+                  <span>Req.</span>
+                </div>
+                {guide.columns.map((col: any) => (
+                  <div key={col.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '4px 0', borderBottom: '1px solid var(--border-subtle)' }}>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-primary)' }}>{col.name}</span>
+                      {col.example && <span style={{ fontSize: 10, color: 'var(--text-muted)' }}>Ej: {col.example}</span>}
+                    </div>
+                    <span style={{ fontSize: 10, color: col.required ? 'var(--color-success)' : 'var(--text-muted)', fontWeight: 800 }}>
+                      {col.required ? 'Sí' : 'No'}
+                    </span>
+                  </div>
+                ))}
+              </div>
+              {guide.notes && guide.notes.length > 0 && (
+                <div style={{ marginTop: 10, paddingTop: 10, borderTop: '1px solid var(--border-default)' }}>
+                  {guide.notes.map((note: string, idx: number) => (
+                    <p key={idx} style={{ margin: '0 0 4px 0', fontSize: 10, color: 'var(--text-muted)', lineHeight: 1.4 }}>• {note}</p>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </button>
       )}
     </div>
@@ -147,6 +271,7 @@ const ConciliacionPage: React.FC<ConciliacionPageProps> = ({
   activeTab = 'conciliacion',
   onTabChange,
 }) => {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [stage, setStage]         = useState<Stage>('select');
   const [bankId, setBankId]       = useState<string | null>(null);
   const [extracto, setExtracto]   = useState<FileInfo | null>(null);
@@ -258,19 +383,27 @@ const ConciliacionPage: React.FC<ConciliacionPageProps> = ({
   const reset = () => { setStage('select'); setBankId(null); setExtracto(null); setSapFile(null); setProgress(0); setResultado(null); setError(null); setTab('resumen'); };
 
   return (
-    <div className="concilia-layout">
+    <div className="concilia-layout" style={{ position: 'relative' }}>
+
+      {/* ── Toggle sidebar — flotante en intersección sidebar/navbar ── */}
+      <button
+        onClick={() => setSidebarCollapsed(c => !c)}
+        title={sidebarCollapsed ? 'Expandir panel' : 'Colapsar panel'}
+        style={{ position: 'absolute', left: (sidebarCollapsed ? 56 : 260) - 12, top: 56 - 12, zIndex: 20, width: 24, height: 24, borderRadius: '50%', border: '1px solid var(--border-default)', cursor: 'pointer', background: 'var(--color-bg-elevated)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 8px rgba(0,0,0,0.28)', transition: 'left 0.22s ease' }}
+      >
+        {sidebarCollapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
+      </button>
 
       {/* ── Sidebar ── */}
-      <aside className="concilia-sidebar" style={{ background: 'var(--color-bg-elevated)', borderRight: '1px solid var(--border-default)' }}>
-        <div style={{ padding: 'var(--space-6)', borderBottom: '1px solid var(--border-subtle)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 4 }}>
-            <BarChart2 size={18} style={{ color: 'var(--color-accent-500)' }} />
-            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 800, letterSpacing: '-0.01em', color: 'var(--text-primary)' }}>Concilia</span>
-          </div>
-          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', margin: 0, lineHeight: 1.4 }}>Conciliación bancaria automática extracto vs SAP</p>
+      <aside className="concilia-sidebar" style={{ width: sidebarCollapsed ? 56 : 260, transition: 'width 0.22s ease', background: 'var(--color-bg-elevated)', borderRight: '1px solid var(--border-default)' }}>
+        <div style={{ height: 56, position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0 var(--space-4)', borderBottom: '1px solid var(--border-subtle)', flexShrink: 0, overflow: 'hidden' }}>
+          <BarChart2 size={18} style={{ color: 'var(--color-accent-500)', position: sidebarCollapsed ? 'static' : 'absolute', left: 'var(--space-4)' }} />
+          {!sidebarCollapsed && (
+            <span style={{ fontSize: 'var(--text-sm)', fontWeight: 800, letterSpacing: '-0.01em', color: 'var(--text-primary)', whiteSpace: 'nowrap' }}>Concilia</span>
+          )}
         </div>
-        {activeTab !== 'auditoria' && <SidebarSteps stage={stage} />}
-        {activeTab !== 'auditoria' && (
+        {activeTab !== 'auditoria' && <SidebarSteps stage={stage} collapsed={sidebarCollapsed} />}
+        {!sidebarCollapsed && activeTab !== 'auditoria' && (
           <div style={{ padding: 'var(--space-4) var(--space-5)', borderTop: '1px solid var(--border-subtle)' }}>
             {stage === 'done' ? (
               <button className="btn-ghost" onClick={reset} style={{ width: '100%', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, fontSize: 'var(--text-xs)' }}>
@@ -286,18 +419,20 @@ const ConciliacionPage: React.FC<ConciliacionPageProps> = ({
       {/* ── Main ── */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
         {isSA && onTabChange && (
-          <nav style={{ display: 'flex', gap: 'var(--space-1)', padding: '6px 16px', background: 'var(--color-bg-elevated)', borderBottom: '1px solid var(--border-default)', flexShrink: 0 }}>
-            {([
-              { key: 'conciliacion' as const, label: 'Conciliación', Icon: BarChart2 },
-              { key: 'auditoria'   as const, label: 'Trazabilidad',  Icon: Shield    },
-            ]).map(({ key, label, Icon }) => {
-              const active = activeTab === key;
-              return (
-                <button key={key} onClick={() => onTabChange(key)} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 'var(--radius-md)', border: 'none', cursor: 'pointer', fontSize: 'var(--text-xs)', fontWeight: 700, background: active ? 'var(--color-accent-500)' : 'transparent', color: active ? 'var(--text-inverse)' : 'var(--text-muted)', transition: 'all var(--duration-normal)' }}>
-                  <Icon size={13} /> {label}
-                </button>
-              );
-            })}
+          <nav style={{ height: 56, display: 'flex', alignItems: 'center', padding: '0 16px', background: 'var(--color-bg-elevated)', borderBottom: '1px solid var(--border-default)', flexShrink: 0 }}>
+            <div style={{ display: 'flex', gap: 'var(--space-1)', padding: '3px', background: 'var(--color-bg-muted)', borderRadius: 'var(--radius-md)', border: '1px solid var(--border-default)' }}>
+              {([
+                { key: 'conciliacion' as const, label: 'Conciliación', Icon: BarChart2 },
+                { key: 'auditoria'   as const, label: 'Trazabilidad',  Icon: Shield    },
+              ]).map(({ key, label, Icon }) => {
+                const active = activeTab === key;
+                return (
+                  <button key={key} title={label} onClick={() => onTabChange(key)} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 30, height: 30, borderRadius: 'var(--radius-sm)', border: 'none', cursor: 'pointer', background: active ? 'var(--color-accent-500)' : 'transparent', color: active ? 'var(--text-inverse)' : 'var(--text-muted)', transition: 'all var(--duration-normal)' }}>
+                    <Icon size={14} />
+                  </button>
+                );
+              })}
+            </div>
           </nav>
         )}
         <main className="concilia-main" style={{ justifyContent: activeTab === 'auditoria' || stage === 'done' ? 'flex-start' : 'center' }}>
@@ -306,8 +441,16 @@ const ConciliacionPage: React.FC<ConciliacionPageProps> = ({
 
           {/* Paso 1: Banco */}
           {stage === 'select' && (
-            <div className="animate-fade-in">
-              <div className="concilia-banks-grid">
+            <div className="animate-fade-in" style={{
+              background: 'rgba(26, 29, 46, 0.45)',
+              border: '1px solid var(--border-default)',
+              borderRadius: 'var(--radius-2xl)',
+              padding: 'var(--space-6) var(--space-6) var(--space-7)',
+              boxShadow: 'var(--shadow-xl)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+            }}>
+              <div className="concilia-banks-grid" style={{ marginBottom: 'var(--space-6)' }}>
                 {BANKS.map(b => <BankCard key={b.id} bank={b} selected={bankId === b.id} onClick={() => setBankId(b.id)} />)}
               </div>
               <button className="btn-primary" style={{ width: '100%', padding: 'var(--space-4)' }} disabled={!bankId} onClick={() => setStage('upload')}>
@@ -318,7 +461,15 @@ const ConciliacionPage: React.FC<ConciliacionPageProps> = ({
 
           {/* Paso 2: Archivos */}
           {stage === 'upload' && (
-            <div className="animate-fade-in">
+            <div className="animate-fade-in" style={{
+              background: 'rgba(26, 29, 46, 0.45)',
+              border: '1px solid var(--border-default)',
+              borderRadius: 'var(--radius-2xl)',
+              padding: 'var(--space-6) var(--space-6) var(--space-7)',
+              boxShadow: 'var(--shadow-xl)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
+            }}>
               <h2 style={{ fontFamily: 'var(--font-display)', fontSize: 'var(--text-2xl)', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em', marginBottom: 'var(--space-2)' }}>Carga de archivos</h2>
               <div style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', marginBottom: 'var(--space-6)', padding: '4px 12px', borderRadius: 'var(--radius-full)', background: `${bank?.accent}14`, border: `1px solid ${bank?.accent}35` }}>
                 <span style={{ width: 8, height: 8, borderRadius: '50%', background: bank?.accent, display: 'block' }} />
@@ -330,10 +481,9 @@ const ConciliacionPage: React.FC<ConciliacionPageProps> = ({
                 </div>
               )}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-4)', marginBottom: 'var(--space-6)' }}>
-                <DropZone label="Extracto bancario" hint=".xlsx / .csv exportado del banco" file={extracto} inputRef={extractoRef} onChange={handleFile('extracto')} onClear={() => setExtracto(null)} onFileDrop={handleDrop('extracto')} />
-                <DropZone label="Registros SAP" hint=".xlsx / .csv exportado de SAP" file={sapFile} inputRef={sapRef} onChange={handleFile('sap')} onClear={() => setSapFile(null)} onFileDrop={handleDrop('sap')} />
+                <DropZone label="Extracto bancario" hint=".xlsx / .csv exportado del banco" file={extracto} inputRef={extractoRef} onChange={handleFile('extracto')} onClear={() => setExtracto(null)} onFileDrop={handleDrop('extracto')} guide={bankId ? BANK_SCHEMAS[bankId]?.extractoGuide : null} accent={bank?.accent} />
+                <DropZone label="Registros SAP" hint=".xlsx / .csv exportado de SAP" file={sapFile} inputRef={sapRef} onChange={handleFile('sap')} onClear={() => setSapFile(null)} onFileDrop={handleDrop('sap')} guide={bankId ? BANK_SCHEMAS[bankId]?.sapGuide : null} accent={bank?.accent} />
               </div>
-              {bankId && <BankGuidePanel bankId={bankId} bankAccent={bank?.accent ?? '#FFD100'} />}
               <div style={{ display: 'flex', gap: 'var(--space-3)', marginTop: 'var(--space-4)' }}>
                 <button className="btn-secondary" onClick={() => setStage('select')}>Atrás</button>
                 <button className="btn-primary" style={{ flex: 1 }} disabled={!extracto || !sapFile} onClick={handleProcess}>Procesar <BarChart2 size={16} /></button>
