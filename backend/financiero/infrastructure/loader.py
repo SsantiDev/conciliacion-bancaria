@@ -203,7 +203,7 @@ def cargar_bogota(path: str) -> pd.DataFrame:
 
     rename = {}
     for c in df.columns:
-        cl = _ascii(str(c))                              # normaliza acentos: Débito→debito
+        cl = _ascii(str(c))
         if 'fecha' in cl:                               rename[c] = '_fecha'
         elif 'transac' in cl or 'descripci' in cl:      rename[c] = 'descripcion'
         elif 'doc' in cl and 'fecha' not in cl:         rename[c] = '_doc'
