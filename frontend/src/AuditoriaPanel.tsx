@@ -153,11 +153,11 @@ const AuditoriaPanel: React.FC = () => {
       ) : (
         <div style={{ background: 'var(--color-bg-elevated)', borderRadius: 'var(--radius-xl)', border: '1px solid var(--border-default)', overflow: 'hidden', boxShadow: 'var(--shadow-md)', width: '100%' }}>
           <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-xs)' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 'var(--text-xs)', textAlign: 'center' }}>
               <thead>
                 <tr style={{ borderBottom: '1px solid var(--border-default)' }}>
                   {['#', 'Fecha', 'Usuario', 'Área', 'Rol', 'Banco', 'Mov. banco', 'Reg. SAP', 'Tasa'].map(h => (
-                    <th key={h} style={{ padding: '10px 14px', textAlign: 'left', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', whiteSpace: 'nowrap', background: 'var(--color-bg-muted)' }}>{h}</th>
+                    <th key={h} style={{ padding: '10px 14px', textAlign: 'center', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', whiteSpace: 'nowrap', background: 'var(--color-bg-muted)' }}>{h}</th>
                   ))}
                 </tr>
               </thead>
@@ -176,8 +176,8 @@ const AuditoriaPanel: React.FC = () => {
                       <td style={{ padding: '10px 14px' }}>
                         <span style={{ padding: '2px 8px', borderRadius: 'var(--radius-full)', background: `${accent}18`, border: `1px solid ${accent}35`, fontWeight: 700, color: accent }}>{r.banco}</span>
                       </td>
-                      <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', textAlign: 'right' }}>{r.total_banco}</td>
-                      <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)', textAlign: 'right' }}>{r.total_sap}</td>
+                      <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>{r.total_banco}</td>
+                      <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono)', color: 'var(--text-secondary)' }}>{r.total_sap}</td>
                       <td style={{ padding: '10px 14px', fontFamily: 'var(--font-mono)', fontWeight: 800, color: tasaColor(r.tasa_conciliacion) }}>{(r.tasa_conciliacion * 100).toFixed(1)}%</td>
                     </tr>
                   );
